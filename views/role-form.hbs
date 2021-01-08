@@ -1,0 +1,35 @@
+<div id="role__form-container"
+     class="mt-3">
+    <h1>Role Form</h1>
+    <div id="app">
+        <form action="{{URL.ROLE_PROCESS}}"
+              method="POST"
+              class="mt-3">
+            <input type="hidden"
+                   name="id"
+                   value="{{role.id}}">
+            <p>Name : {{role.name}}</p>
+            {{#each permissions as |permission i|}}
+            <div class="form-check">
+                <input class="form-check-input"
+                       name="permissions"
+                       type="checkbox"
+                       value="{{permission}}"
+                       {{#contains
+                       @root.role.permissions
+                       permission}}
+                       checked="checked"
+                       {{/contains}}
+                       id="permission__input_{{i}}">
+                <label class="form-check-label"
+                       for="permission__input_{{i}}">
+                    {{permission}}
+                </label>
+            </div>
+            {{/each}}
+
+            <button type="submit"
+                    class="btn btn-success mt-3">Submit</button>
+        </form>
+    </div>
+</div>

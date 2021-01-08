@@ -7,6 +7,7 @@ module.exports = {
 				email: "admin@gmail.com",
 				password: "admin",
 				fullName: "John Doe",
+				roleId: 1,
 				isVerified: false,
 				createdAt: new Date(),
 				updatedAt: new Date(),

@@ -1,1 +1,27 @@
-<h1>Đây là roles</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Permissions</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each roles as |role|}}
+        <tr>
+            <th scope="row">{{role.id}}</th>
+            <td>{{role.name}}</td>
+            <td>
+                <ul>
+                    {{#each role.permissions as |permission|}}
+                    <li>{{permission}}</li>
+                    {{/each}}
+                </ul>
+            </td>
+            <td><a href="{{@root.URL.ROLE_UPDATE}}/{{role.id}}"
+                   class="btn btn-warning">Update</a></td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
