@@ -3,8 +3,10 @@ const router = express.Router();
 
 const URL = require("../helpers/urls");
 const helpers = require("handlebars-helpers")();
+const flash = require("connect-flash");
 
 const userService = require("../services/user.service");
+const validationMiddleware = require("../routes/validator.middleware");
 const { param, body, validationResult } = require("express-validator");
 
 // router.get("/", async (req, res, next) => {
@@ -51,22 +53,7 @@ router.post(
 			.withMessage("khong được chứa số, chỉ chấp nhận ký tự"),
 	],
 	async (req, res, next) => {
-		const rs = validationResult(req);
-
-		if (rs.errors.length > 0) {
-			/* Filter Errors for View */
-			const errObj = {};
-			rs.errors
-				.filter((err) => {
-					return err.location === "body";
-				})
-				.forEach((err) => {
-					errObj[err.param] = `${err.param.charAt(0).toUpperCase() + err.param.slice(1)}
-						${err.msg.toLowerCase()}`;
-				});
-
-			req.flash("errors", errObj);
-			req.flash("oldValues", req.body);
+		if (req.formErrors) {
 			res.redirect(URL.REGISTER);
 			return;
 		}
@@ -81,7 +68,72 @@ router.post(
 );
 
 router.get("/login", async (req, res, next) => {
-	res.render("login");
+	const error = req.flash("error");
+	res.render("login", {
+		errMsg: error[0],
+	});
+});
+
+router.post("/login", async (req, res, next) => {
+	const user = await userService.login(req.body);
+	if (user) {
+		req.session.user = {
+			id: user.id,
+			email: user.email,
+			fullName: user.fullName,
+			role: user.role,
+			isVerified: user.isVerified,
+			permissions: user.Role.permissions,
+		};
+		res.redirect(URL.HOME);
+	} else {
+		req.flash("error", "Email hoặc Password không đúng");
+		res.redirect(URL.LOGIN);
+	}
+});
+
+const { isAuth, isRole, hasPermissions } = require("../routes/auth.middleware");
+const ROLE = require("../security/roles");
+const PERMISSION = require("../security/permissions");
+
+router.get("/test", async (req, res, next) => {
+	console.log(req.session.user);
+	console.log(req.cookies);
+	console.log(req.session.cookie);
+	res.render("home");
+});
+
+router.get("/test-auth", isAuth, async (req, res, next) => {
+	console.log("test auth thành công");
+	res.render("home");
+});
+
+router.get("/test-admin", isRole(ROLE.ADMIN), async (req, res, next) => {
+	console.log("test admin thành công");
+	res.render("home");
+});
+
+router.get(
+	"/test-create-post",
+	hasPermissions([PERMISSION.CREATE_POST]),
+	async (req, res, next) => {
+		console.log("test create thành công");
+		res.render("home");
+	}
+);
+
+router.get("/logout", async (req, res, next) => {
+	if (req.session.user) {
+		const user = req.session.user;
+		res.clearCookie("SESSION_ID");
+		req.session.destroy(() => {
+			console.log(`Đã hủy session của ${user.email}`);
+		});
+	} else {
+		console.log("Không có gì để destroy");
+	}
+
+	res.redirect(URL.HOME);
 });
 
 module.exports = router;

@@ -6,8 +6,8 @@
               method="POST"
               class="mt-3">
             <input type="hidden"
-                   name="id"
-                   value="{{role.id}}">
+                   name="name"
+                   value="{{role.name}}">
             <p>Name : {{role.name}}</p>
             {{#each permissions as |permission i|}}
             <div class="form-check">

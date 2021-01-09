@@ -10,6 +10,7 @@ const camelcaseKeys = require("camelcase-keys");
 const handlebars = require("express-handlebars");
 const flash = require("connect-flash");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const express = require("express");
 
 /* Imports */
@@ -23,6 +24,7 @@ const homeRoute = require("./routes/home.route");
 const authRoute = require("./routes/auth.route");
 const roleRoute = require("./routes/role.route");
 const userRoute = require("./routes/user.route");
+const postRoute = require("./routes/post.route");
 
 const app = express();
 require("dotenv/config");
@@ -47,11 +49,23 @@ app.set("view engine", "hbs");
 
 /* Middleware */
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(
 	session({
+		name: "SESSION_ID",
 		secret: process.env.SESSION_SECRET,
-		resave: true,
+		resave: false,
 		saveUninitialized: false,
+		cookie: {
+			path: "/", // Set-Cookie Path : root path of domain
+			httpOnly: true, // Chỉ chấp nhập http -> document.cookie => '' ở client(tránh xss)
+			secure: false, // chỉ chấp nhận ssl
+			maxAge: 60 * 60 * 24 * 7, // Set-Cookie: Expires
+			// domain: "www.jungtin.me", // default = null, vì cookie sẽ applied lên domain hiện tại
+			sameSite: true,
+		},
+		unset: "keep", // 'destroy' : delete session after response,
+		// 'keep' : session kept in store
 	})
 );
 app.use(flash()); // phải đặt sau session
@@ -85,6 +99,7 @@ app.use(homeRoute);
 app.use(authRoute);
 app.use("/roles", roleRoute);
 app.use("/users", userRoute);
+app.use("/posts", postRoute);
 
 /* 
 	Error Handling

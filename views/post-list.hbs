@@ -1,0 +1,33 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Description</th>
+            <th scope="col">Author</th>
+            <th scope="col">Created At</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each posts as |post|}}
+        <tr>
+            <th scope="row">{{post.id}}</th>
+            <td>{{post.Title}}</td>
+            <td>{{post.description}}</td>
+            <td>{{post.User.fullName}}</td>
+            <td>{{date post.createdAt "DD/MM/YYYY HH:mm:ss"}}</td>
+            <td><a href="{{@root.URL.POST_UPDATE}}/{{post.id}}"
+                   class="btn btn-warning">Update</a></td>
+            <td>
+                <form action="{{@root.URL.POST_DELETE}}/{{post.id}}"
+                      method="POST">
+                    <button class="btn btn-danger"
+                            type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

@@ -21,14 +21,14 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
-			roleId: {
-				type: Sequelize.INTEGER,
+			role: {
+				type: Sequelize.STRING,
 				allowNull: false,
 				references: {
 					model: {
 						tableName: "roles",
 					},
-					key: "id",
+					key: "name",
 					allowNull: false,
 					onDelete: "SET NULL",
 				},

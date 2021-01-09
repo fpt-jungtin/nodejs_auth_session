@@ -4,6 +4,7 @@ const router = express.Router();
 const URL = require("../helpers/urls");
 const helpers = require("handlebars-helpers")();
 const roleService = require("../services/role.service");
+const validationMiddleware = require("../routes/validator.middleware");
 const { param, body, validationResult } = require("express-validator");
 
 router.get("/", async (req, res, next) => {
@@ -17,9 +18,9 @@ router.get("/", async (req, res, next) => {
 	}
 });
 
-router.get("/update/:id", [param("id").toInt()], async (req, res, next) => {
+router.get("/update/:name", async (req, res, next) => {
 	try {
-		const role = await roleService.findById(req.params.id);
+		const role = await roleService.findByName(req.params.name);
 		const permissions = require("../security/permissions");
 		res.render("role-form", {
 			role,
@@ -40,33 +41,27 @@ router.post(
 			if (!arrPermissions) return true;
 			const permissions = require("../security/permissions");
 
-			for (let index = 0; index < arrPermissions.length; index++) {
-				const per = arrPermissions[index];
-				if (Object.values(permissions).indexOf(per) < 0)
+			if (typeof arrPermissions === "string") {
+				if (Object.values(permissions).indexOf(arrPermissions) < 0)
 					throw new Error("không hợp lệ! Mày đừng có chơi tao :((");
+			} else {
+				for (let index = 0; index < arrPermissions.length; index++) {
+					const per = arrPermissions[index];
+					if (Object.values(permissions).indexOf(per) < 0)
+						throw new Error("không hợp lệ! Mày đừng có chơi tao :((");
+				}
 			}
 
 			return true;
 		}),
 	],
+	validationMiddleware,
 	async (req, res, next) => {
-		const rs = validationResult(req);
-		if (rs.errors.length > 0) {
-			/* Filter Errors for View */
-			const errObj = {};
-			rs.errors
-				.filter((err) => {
-					return err.location === "body";
-				})
-				.forEach((err) => {
-					errObj[err.param] = `${err.param.charAt(0).toUpperCase() + err.param.slice(1)}
-						${err.msg.toLowerCase()}`;
-				});
-
+		if (req.formErrors) {
 			res.render("404", {
 				layout: false,
 				error: {
-					message: errObj.permissions,
+					message: req.formErrors.permissions,
 				},
 			});
 			return;

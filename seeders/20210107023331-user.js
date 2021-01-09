@@ -1,5 +1,7 @@
 "use strict";
 
+const ROLE = require("../security/roles");
+
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
 		await queryInterface.bulkInsert("users", [
@@ -7,7 +9,7 @@ module.exports = {
 				email: "admin@gmail.com",
 				password: "admin",
 				fullName: "John Doe",
-				roleId: 1,
+				role: ROLE.USER,
 				isVerified: false,
 				createdAt: new Date(),
 				updatedAt: new Date(),

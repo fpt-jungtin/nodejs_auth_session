@@ -2,11 +2,18 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
 	class Role extends Model {
-		static associate(models) {}
+		static associate(models) {
+			// Role.hasMany(models.User);
+		}
 	}
 	Role.init(
 		{
-			name: DataTypes.STRING,
+			name: {
+				type: DataTypes.STRING,
+				primaryKey: true,
+				allowNull: false,
+				/* Nếu mình không set primaryKey => sqlize tự động dùng field id làm PK */
+			},
 			permissions: DataTypes.TEXT,
 		},
 		{
